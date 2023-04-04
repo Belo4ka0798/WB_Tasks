@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
 )
 
@@ -22,5 +23,5 @@ func Pow(arr []int) {
 		}(&arr[i])
 	}
 	wg.Wait()
-	fmt.Println(arr)
+	fmt.Fprint(os.Stdout, arr)
 }

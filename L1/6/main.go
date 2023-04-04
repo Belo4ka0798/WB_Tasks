@@ -1,6 +1,4 @@
-// Реализовать постоянную запись данных в канал (главный поток).
-// Реализовать набор из N воркеров, которые читают произвольные данные из канала и выводят в stdout.
-// Необходима возможность выбора количества воркеров при старте.
+// Реализовать все возможные способы остановки выполнения горутины.
 package main
 
 import (
@@ -13,9 +11,13 @@ import (
 	"time"
 )
 
-func Worker(ch chan interface{}, ctx context.Context, wg *sync.WaitGroup, i int) {
+func Worker(ch chan interface{}, ctx context.Context, chi chan int, wg *sync.WaitGroup, i int) {
 	for {
 		select {
+		case tmp := <-chi:
+			if tmp == 1 {
+				return
+			}
 		case <-ctx.Done():
 			data, ok := <-ch
 			if !ok {
@@ -34,21 +36,35 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT)
 	var a int
 	_, err := fmt.Scan(&a)
+	chi := make(chan int, a)
+	var b int
+	_, err = fmt.Scan(&b)
 	if err != nil {
 		log.Fatal()
 	}
 	for i := 0; i < a; i++ {
-		go Worker(ch, ctx, nil, i)
+		go Worker(ch, ctx, chi, nil, i)
+	}
+
+	for i := 0; i < a; i++ {
+		chi <- b
 	}
 	for {
 		select {
+		case tmp := <-chi:
+			if tmp == 1 {
+				log.Println("CHANNEL PUT 1!")
+				return
+			}
 		case <-ctx.Done():
 			cancel()
-			log.Println("CANCEL")
+			log.Println("CANCEL WITH CONTEXT")
 			return
 		default:
 			ch <- time.Now().UTC()
 			time.Sleep(time.Second)
+			break
 		}
 	}
+	//log.Println("CANCEL WITH END MAIN FUNC!")
 }
