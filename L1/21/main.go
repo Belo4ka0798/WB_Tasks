@@ -1,3 +1,4 @@
+// Реализовать паттерн «адаптер» на любом примере.
 package main
 
 type Inter interface {

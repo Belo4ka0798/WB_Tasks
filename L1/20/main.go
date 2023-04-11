@@ -11,7 +11,7 @@ func main() {
 	str := "Hello, World! Привет, Мир!"
 	arr := strings.Split(str, " ")
 
-	for i := len(arr) - 1; i >= 0; i-- {
+	for i := 0; i <= len(arr)-1; i++ {
 		tmp := []rune(arr[i])
 		for i := len(tmp) - 1; i >= 0; i-- {
 			fmt.Print(string(tmp[i]))
